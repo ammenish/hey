@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from "react";
-import { Globe, TreePine, PawPrint, IndianRupee, Factory, ClipboardList, FileText, RefreshCw, Waves, Hourglass, CheckCircle, Flag, XCircle, Coins, Upload, BarChart, Sprout, Droplets, Leaf, Flame, Mountain, Flower2, HardHat, Bug, Users, Microscope, BookOpen } from 'lucide-react';
+import { Globe, TreePine, PawPrint, IndianRupee, Factory, ClipboardList, FileText, RefreshCw, Waves, Hourglass, CheckCircle, Flag, XCircle, Coins, Upload, BarChart as BarChartIcon, Sprout, Droplets, Leaf, Flame, Mountain, Flower2, HardHat, Bug, Users, Microscope, BookOpen } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SHARED CHART COMPONENTS (Pure CSS/SVG — No Libraries Needed)
@@ -16,7 +15,7 @@ const AnimatedNumber = ({ val, dur = 1500 }) => {
 };
 
 // Horizontal Bar Chart
-const BarChart = ({ data, maxVal, color = "#2563eb", height = 28 }) => (
+const CustomBarChart = ({ data, maxVal, color = "#2563eb", height = 28 }) => (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {data.map((d, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -460,7 +459,7 @@ export const CAMPADashboard = ({ onBack }) => {
     const financialCards = [
         { label: "Fund Received (₹ Cr)", val: 54867, color: "#2563eb", icon: <Coins size={22}/> },
         { label: "Fund Released (₹ Cr)", val: 42345, color: "#16a34a", icon: <Upload size={22}/> },
-        { label: "Fund Utilized (₹ Cr)", val: 38912, color: "#7c3aed", icon: <BarChart size={22}/> },
+        { label: "Fund Utilized (₹ Cr)", val: 38912, color: "#7c3aed", icon: <BarChartIcon size={22}/> },
         { label: "Forest Area Diverted (Ha)", val: 123456, color: "#0891b2", icon: <TreePine size={22}/> },
     ];
 
