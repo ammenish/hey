@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import landingCSS from './landingStyles.js';
 import { apiLogin, apiFetchClearanceStats } from './api.js';
 import { DashboardHub, ECCRZDashboard, FCDashboard, WLCDashboard, CAMPADashboard } from './PublicDashboards.jsx';
+import HelpBox from './HelpBox.jsx';
+import { Home, Globe, TreePine, PawPrint, IndianRupee, Crown, HardHat, Search, FileText, Twitter, Instagram, Facebook, Link, Youtube } from 'lucide-react';
 
 // Inject landing page styles
 const lpStyle = document.createElement("style");
@@ -163,25 +165,25 @@ const LandingPage = ({ onLogin }) => {
                     <span className={`nav-item ${tab === "Home" ? "active" : ""}`} onClick={() => setTab("Home")}>Home</span>
                     <span className={`nav-item ${tab === "About" ? "active" : ""}`} onClick={() => setTab("About")}>About</span>
                     <div className="nav-dropdown-wrapper">
-                        <span className={`nav-item ${["Dashboard","ECCRZ","FC","WLC","CAMPA"].includes(tab) ? "active" : ""}`} onClick={() => setTab("Dashboard")}>Dashboard ˅</span>
+                        <span className={`nav-item ${["Dashboard","ECCRZ","FC","WLC","CAMPA"].includes(tab) ? "active" : ""}`} onClick={() => setTab("Dashboard")}>Dashboard <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{verticalAlign: "middle", marginLeft: 2, marginTop: -2}}><polyline points="6 9 12 15 18 9"/></svg></span>
                         <div className="nav-dropdown">
-                            <div className="nav-dd-item" onClick={() => { setTab("Dashboard"); window.scrollTo(0,0); }}>🏠 Dashboard Hub</div>
-                            <div className="nav-dd-item" onClick={() => { setTab("ECCRZ"); window.scrollTo(0,0); }}>🌍 EC / CRZ MIS</div>
-                            <div className="nav-dd-item" onClick={() => { setTab("FC"); window.scrollTo(0,0); }}>🌲 Forest Clearance</div>
-                            <div className="nav-dd-item" onClick={() => { setTab("WLC"); window.scrollTo(0,0); }}>🐾 Wildlife Clearance</div>
-                            <div className="nav-dd-item" onClick={() => { setTab("CAMPA"); window.scrollTo(0,0); }}>₹ National CAMPA</div>
+                            <div className="nav-dd-item" onClick={() => { setTab("Dashboard"); window.scrollTo(0,0); }}><Home size={14}/> Dashboard Hub</div>
+                            <div className="nav-dd-item" onClick={() => { setTab("ECCRZ"); window.scrollTo(0,0); }}><Globe size={14}/> EC / CRZ MIS</div>
+                            <div className="nav-dd-item" onClick={() => { setTab("FC"); window.scrollTo(0,0); }}><TreePine size={14}/> Forest Clearance</div>
+                            <div className="nav-dd-item" onClick={() => { setTab("WLC"); window.scrollTo(0,0); }}><PawPrint size={14}/> Wildlife Clearance</div>
+                            <div className="nav-dd-item" onClick={() => { setTab("CAMPA"); window.scrollTo(0,0); }}><IndianRupee size={14}/> National CAMPA</div>
                         </div>
                     </div>
                     <span className={`nav-item ${tab === "Contact" ? "active" : ""}`} onClick={() => setTab("Contact")}>Contact</span>
-                    <span className={`nav-item ${tab === "Clearance" ? "active" : ""}`} onClick={() => setTab("Clearance")}>Clearance ˅</span>
+                    <span className={`nav-item ${tab === "Clearance" ? "active" : ""}`} onClick={() => setTab("Clearance")}>Clearance <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{verticalAlign: "middle", marginLeft: 2, marginTop: -2}}><polyline points="6 9 12 15 18 9"/></svg></span>
                     <div className="nav-actions">
                         <div className="login-dropdown-wrapper" style={{ padding: "10px" }}>
-                            <button className="login-btn" onClick={() => onLogin()}>Login ˅</button>
+                            <button className="login-btn" onClick={() => onLogin()}>Login <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{verticalAlign: "middle", marginLeft: 2, marginTop: -2}}><polyline points="6 9 12 15 18 9"/></svg></button>
                             <div className="login-dropdown">
-                                <div className="dropdown-item" onClick={() => handleQuickLogin('admin')}>👑 Admin</div>
-                                <div className="dropdown-item" onClick={() => handleQuickLogin('proponent')}>🏗️ Proponent</div>
-                                <div className="dropdown-item" onClick={() => handleQuickLogin('scrutiny')}>🔍 Scrutiny</div>
-                                <div className="dropdown-item" onClick={() => handleQuickLogin('mom')}>📝 MoM Team</div>
+                                <div className="dropdown-item" onClick={() => handleQuickLogin('admin')}><Crown size={18}/> Admin</div>
+                                <div className="dropdown-item" onClick={() => handleQuickLogin('proponent')}><HardHat size={18}/> Proponent</div>
+                                <div className="dropdown-item" onClick={() => handleQuickLogin('scrutiny')}><Search size={18}/> Scrutiny</div>
+                                <div className="dropdown-item" onClick={() => handleQuickLogin('mom')}><FileText size={18}/> MoM Team</div>
                             </div>
                         </div>
                         <button className="reg-btn">Register</button>
@@ -197,7 +199,7 @@ const LandingPage = ({ onLogin }) => {
                             <video src="/animation1.mp4" autoPlay loop muted playsInline className="hero-bg-video" />
                             <div className="hero-overlay"></div>
                             <div className="hero-content">
-                                <span className="hero-badge animate-slide-up">🌐 PARIVESH 3.0 Initiative</span>
+                                <span className="hero-badge animate-slide-up"><Globe size={14} style={{ marginRight: 4 }}/> PARIVESH 3.0 Initiative</span>
                                 <h1 className="hero-title animate-slide-up delay-1">Environmental Clearance <span className="text-green">Made Digital</span></h1>
                                 <p className="hero-desc animate-slide-up delay-2">
                                     A unified portal managing the complete lifecycle of environmental clearance applications, from initial filing to final Minutes of Meeting publication.
@@ -267,10 +269,10 @@ const LandingPage = ({ onLogin }) => {
                             
                             <div className="domain-grid">
                                 {[
-                                    { title: "Environment Clearance", url: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&q=80", desc: "For industrial, infrastructural & mining projects" },
-                                    { title: "Forest Clearance", url: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&q=80", desc: "Diversion of forest land for non-forest purposes" },
-                                    { title: "Wildlife Clearance", url: "https://images.unsplash.com/photo-1552596200-aaeabece891f?q=80&w=2674&auto=format&fit=crop", desc: "Activities within protected areas and eco-sensitive zones" },
-                                    { title: "CRZ Clearance", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80", desc: "Development within Coastal Regulation Zones" }
+                                    { title: "Environment Clearance", url: "/environmental.jpg", desc: "For industrial, infrastructural & mining projects" },
+                                    { title: "Forest Clearance", url: "/forest.jpg", desc: "Diversion of forest land for non-forest purposes" },
+                                    { title: "Wildlife Clearance", url: "/wildlife.jpg", desc: "Activities within protected areas and eco-sensitive zones" },
+                                    { title: "CRZ Clearance", url: "/crz.jpg", desc: "Development within Coastal Regulation Zones" }
                                 ].map((d, i) => (
                                     <div key={i} className="domain-card scroll-reveal" data-delay={i * 150} onClick={() => { setTab("DomainDetails"); setSelectedDomain(d.title); setDomainSubTab("Overview"); window.scrollTo(0, 0); }}>
                                         <div className="dc-img" style={{ backgroundImage: `url(${d.url})` }}></div>
@@ -533,7 +535,7 @@ const LandingPage = ({ onLogin }) => {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 30 }}>
                     <div className="social-icons">
-                        {["𝕏", "📷", "f", "🔗", "▶"].map((ic, i) => <div key={i} className="s-icon-box">{ic}</div>)}
+                        {[<Twitter size={16}/>, <Instagram size={16}/>, <Facebook size={16}/>, <Link size={16}/>, <Youtube size={16}/>].map((ic, i) => <div key={i} className="s-icon-box">{ic}</div>)}
                     </div>
                     <div className="ft-visitor-box">
                         <div className="v-lbl">Total Visitors</div>
@@ -545,6 +547,7 @@ const LandingPage = ({ onLogin }) => {
                     <div>Designed & Developed by NIC, MoEF&CC</div>
                 </div>
             </footer>
+            <HelpBox />
         </div >
     );
 };

@@ -3,8 +3,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.user import User
 from models.application import Application
 from models.document import Document
-from models.notification import Notification
 from extensions import db
+from datetime import datetime, timezone
+from services.notification_service import send_smart_notification
 from datetime import datetime, timezone
 
 apps_bp = Blueprint("applications", __name__, url_prefix="/api/applications")
@@ -109,22 +110,22 @@ def create_application():
     db.session.commit()
 
     # Notify proponent
-    db.session.add(Notification(
-        user_id=app.proponent_id,
+    send_smart_notification(
+        user=user,
         title="Application Submitted",
         message=f"Your application {app.app_id} for {app.project[:30]}... has been submitted successfully.",
-        category="success",
-    ))
+        category="success"
+    )
 
     # Notify all scrutiny officers
     scrutiny_users = User.query.filter_by(role="scrutiny").all()
     for s_user in scrutiny_users:
-        db.session.add(Notification(
-            user_id=s_user.id,
+        send_smart_notification(
+            user=s_user,
             title="New Application Received",
             message=f"New application {app.app_id} submitted by {user.company}. Awaiting review in your queue.",
-            category="info",
-        ))
+            category="info"
+        )
 
     db.session.commit()
 
@@ -153,23 +154,24 @@ def update_application(app_id):
         if data["status"] == "Referred for Meeting" and app.status != "Referred for Meeting":
             mom_users = User.query.filter_by(role="mom").all()
             for m_user in mom_users:
-                db.session.add(Notification(
-                    user_id=m_user.id,
+                send_smart_notification(
+                    user=m_user,
                     title="New Meeting Referral",
                     message=f"Application {app.app_id} has been verified and referred for meeting.",
-                    category="info",
-                ))
+                    category="info"
+                )
                 
         app.status = data["status"]
 
         # Create notification for status change
-        notif = Notification(
-            user_id=app.proponent_id,
-            title="Application Status Updated",
-            message=f"Your application {app.app_id} is now: {data['status']}",
-            category="info",
-        )
-        db.session.add(notif)
+        proponent = User.query.get(app.proponent_id)
+        if proponent:
+            send_smart_notification(
+                user=proponent,
+                title="Application Status Updated",
+                message=f"Your application {app.app_id} is now: {data['status']}",
+                category="info"
+            )
 
     # Updatable fields
     updatable = ["project", "sector", "category", "fees", "fees_paid", "gist", "mom", "eds_remarks", "locked"]
@@ -183,13 +185,12 @@ def update_application(app_id):
         if reviewer and reviewer.role in ["scrutiny", "mom"]:
             app.reviewer_id = data["reviewer_id"]
             # Notify the reviewer
-            notif = Notification(
-                user_id=reviewer.id,
+            send_smart_notification(
+                user=reviewer,
                 title="New Review Assignment",
                 message=f"You've been assigned to review {app.app_id}: {app.project}",
-                category="info",
+                category="info"
             )
-            db.session.add(notif)
 
     db.session.commit()
     return jsonify({"message": "Application updated", "application": app.to_dict()}), 200
@@ -205,14 +206,14 @@ def pay_fees(app_id):
 
     app.fees_paid = True
     db.session.commit()
-
-    notif = Notification(
-        user_id=app.proponent_id,
-        title="Payment Confirmed",
-        message=f"Payment of ₹{app.fees:,.0f} confirmed for {app.app_id}",
-        category="success",
-    )
-    db.session.add(notif)
+    proponent_user = User.query.get(app.proponent_id)
+    if proponent_user:
+        send_smart_notification(
+            user=proponent_user,
+            title="Payment Confirmed",
+            message=f"Payment of ₹{app.fees:,.0f} confirmed for {app.app_id}",
+            category="success"
+        )
     db.session.commit()
 
     return jsonify({"message": "Payment confirmed", "application": app.to_dict()}), 200
@@ -233,14 +234,14 @@ def lock_application(app_id):
     app.locked = True
     app.status = "Finalized"
     db.session.commit()
-
-    notif = Notification(
-        user_id=app.proponent_id,
-        title="Application Finalized",
-        message=f"Application {app.app_id} has been finalized and locked.",
-        category="success",
-    )
-    db.session.add(notif)
+    proponent_user = User.query.get(app.proponent_id)
+    if proponent_user:
+        send_smart_notification(
+            user=proponent_user,
+            title="Application Finalized",
+            message=f"Application {app.app_id} has been finalized and locked.",
+            category="success"
+        )
     db.session.commit()
 
     return jsonify({"message": "Application locked", "application": app.to_dict()}), 200

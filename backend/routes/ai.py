@@ -11,9 +11,8 @@ import os
 from extensions import db
 from models.application import Application
 from models.user import User
-from models.notification import Notification
 from services.ai_service import auto_scrutiny, generate_meeting_gist, generate_mom, get_sector_checklist, update_sector_checklist, get_templates, update_template, CHECKLISTS, EDS_POINTS, AFFIDAVITS
-from services.notification_service import notify_status_change, notify_eds_issued, notify_sla_breach
+from services.notification_service import notify_status_change, notify_eds_issued, notify_sla_breach, send_smart_notification
 
 ai_bp = Blueprint("ai", __name__, url_prefix="/api/ai")
 
@@ -336,30 +335,34 @@ def sla_auto_escalate():
         if days_in_stage > sla_limit:
             days_overdue = days_in_stage - sla_limit
 
-            # Create in-app notification
-            notif = Notification(
-                user_id=admin.id if admin else 1,
-                title=f"⚠ SLA Breach: {a.app_id}",
-                message=f"{a.project} is {days_overdue} day(s) overdue at {a.status} stage.",
-                category="warning"
-            )
-            db.session.add(notif)
-
-            # Send email to admin
+            # Notify admin
             if admin:
-                notify_sla_breach(
-                    admin.email, admin.name,
-                    a.app_id, a.project,
-                    days_overdue, a.status
+                send_smart_notification(
+                    user=admin,
+                    title=f"⚠ SLA Breach (Admin Alert): {a.app_id}",
+                    message=f"Application {a.project} is {days_overdue} day(s) overdue at {a.status} stage.",
+                    category="warning"
                 )
 
-            # Also notify proponent
+            # Notify proponent
             if a.proponent:
-                notify_sla_breach(
-                    a.proponent.email, a.proponent.name,
-                    a.app_id, a.project,
-                    days_overdue, a.status
+                send_smart_notification(
+                    user=a.proponent,
+                    title=f"⚠ SLA Breach Warning: {a.app_id}",
+                    message=f"Your application {a.project} is {days_overdue} day(s) overdue for the {a.status} stage. Immediate action may be required.",
+                    category="warning"
                 )
+
+            # Notify the currently assigned reviewer
+            if getattr(a, 'reviewer', None) or getattr(a, 'reviewer_user', None):
+                reviewer = getattr(a, 'reviewer_user', None) or a.reviewer
+                if reviewer:
+                    send_smart_notification(
+                        user=reviewer,
+                        title=f"⏳ Pending Action - High Priority: {a.app_id}",
+                        message=f"The application {a.project} you are reviewing is {days_overdue} day(s) overdue in your queue.",
+                        category="warning"
+                    )
 
             escalated.append({
                 "app_id": a.app_id,

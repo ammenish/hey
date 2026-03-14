@@ -45,6 +45,55 @@ def send_email(to_email, subject, html_body):
         return {"sent": False, "mock": False, "error": str(e)}
 
 
+def send_sms(phone_number, text_message):
+    """Mock SMS sending via gateway (e.g. Twilio/AWS SNS)"""
+    if not phone_number:
+        return {"sent": False, "reason": "No phone number provided"}
+    
+    # In a real app we'd trigger an SMS HTTP API here
+    print(f"📱 [SMS DISPATCHED] To: {phone_number}")
+    print(f"   Message: {text_message}")
+    return {"sent": True, "mock": True}
+
+
+def send_smart_notification(user, title, message, category="info", app_id=None):
+    """
+    Sends In-App Notification (Database), Email, and SMS alerts all at once.
+    """
+    from extensions import db
+    from models.notification import Notification
+
+    # 1. In-App Alert (Database)
+    notif = Notification(
+        user_id=user.id,
+        title=title,
+        message=message,
+        category=category
+    )
+    db.session.add(notif)
+    # Note: caller should db.session.commit()
+
+    # 2. Email Alert
+    email_html = f"""
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+        <div style="background: #0a2463; padding: 16px 20px;">
+            <h2 style="color: #fff; margin: 0; font-size: 18px;">PARIVESH 3.0 Alert</h2>
+        </div>
+        <div style="padding: 24px;">
+            <p><strong>Hello {user.name},</strong></p>
+            <p>{message}</p>
+        </div>
+    </div>
+    """
+    send_email(user.email, f"[PARIVESH 3.0] {title}", email_html)
+
+    # 3. SMS Alert (Mocked phone numbers for testing)
+    phone = getattr(user, "phone", "+919876543210")  # Dummy fallback phone
+    send_sms(phone, f"PARIVESH ALERT: {title} - {message[:100]}...")
+    
+    return notif
+
+
 def notify_status_change(user_email, user_name, app_id, project, old_status, new_status):
     """Send notification when application status changes."""
     subject = f"[PARIVESH 3.0] Application {app_id} — Status Updated to {new_status}"

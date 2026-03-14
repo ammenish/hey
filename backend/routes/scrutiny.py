@@ -7,8 +7,8 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.user import User
 from models.application import Application
-from models.notification import Notification
 from extensions import db
+from services.notification_service import send_smart_notification
 from services.ai_scrutiny import scrutinize_application
 
 scrutiny_bp = Blueprint("scrutiny", __name__, url_prefix="/api/scrutiny")
@@ -47,12 +47,12 @@ def run_ai_scrutiny(app_id):
     result["proponent_id"] = app.proponent_id
 
     # Create notification for the scrutiny officer
-    db.session.add(Notification(
-        user_id=user.id,
+    send_smart_notification(
+        user=user,
         title="AI Scrutiny Complete",
         message=f"AI Scrutiny for {app.app_id}: {result['score']}% compliant. {result['recommendation_text'][:80]}...",
-        category="info" if result["recommendation"] == "PASS" else "warning",
-    ))
+        category="info" if result["recommendation"] == "PASS" else "warning"
+    )
     db.session.commit()
 
     return jsonify({"scrutiny_result": result}), 200
@@ -89,34 +89,38 @@ def auto_issue_eds(app_id):
         # All docs present — mark ready for meeting referral
         app.status = "Under Scrutiny"
         app.eds_remarks = ""
-        db.session.add(Notification(
-            user_id=app.proponent_id,
-            title="AI Scrutiny Passed",
-            message=f"Your application {app.app_id} passed AI scrutiny with 100% compliance. It is now under manual review.",
-            category="success",
-        ))
-        db.session.add(Notification(
-            user_id=user.id,
+        proponent = User.query.get(app.proponent_id)
+        if proponent:
+            send_smart_notification(
+                user=proponent,
+                title="AI Scrutiny Passed",
+                message=f"Your application {app.app_id} passed AI scrutiny with 100% compliance. It is now under manual review.",
+                category="success"
+            )
+        send_smart_notification(
+            user=user,
             title="AI Scrutiny — All Clear",
             message=f"{app.app_id} is 100% compliant. Ready for manual verification and meeting referral.",
-            category="success",
-        ))
+            category="success"
+        )
     else:
         # Missing docs — auto-issue EDS
         app.status = "EDS Issued"
         app.eds_remarks = result["eds_text"]
-        db.session.add(Notification(
-            user_id=app.proponent_id,
-            title="EDS Issued (AI Auto-Scrutiny)",
-            message=f"Your application {app.app_id} has {result['missing_count']} missing document(s). Please check EDS remarks and re-submit.",
-            category="warning",
-        ))
-        db.session.add(Notification(
-            user_id=user.id,
+        proponent = User.query.get(app.proponent_id)
+        if proponent:
+            send_smart_notification(
+                user=proponent,
+                title="EDS Issued (AI Auto-Scrutiny)",
+                message=f"Your application {app.app_id} has {result['missing_count']} missing document(s). Please check EDS remarks and re-submit.",
+                category="warning"
+            )
+        send_smart_notification(
+            user=user,
             title="AI Auto-EDS Issued",
             message=f"EDS auto-issued for {app.app_id}: {result['missing_count']} missing docs, {result['score']}% compliant.",
-            category="info",
-        ))
+            category="info"
+        )
 
     db.session.commit()
 

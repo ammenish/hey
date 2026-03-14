@@ -9,9 +9,9 @@ import { AdminHome, UserMgmt, Templates, AppTable, HeatmapDash, SectorParams } f
 import { PPHome, NewApp } from './ProponentScreens.jsx';
 import { ScrutinyHome, ReviewQ, EDSMgmt, GistGen } from './ScrutinyScreens.jsx';
 import { MoMHome, MoMEd, Finalized } from './MoMScreens.jsx';
+import { Check, AlertTriangle } from 'lucide-react';
 
 // ── Global Styles (injected once) ─────────────────────────────────────────────
-const fontLink = document.createElement("link");
 fontLink.href = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap";
 fontLink.rel = "stylesheet";
 document.head.appendChild(fontLink);
@@ -301,7 +301,7 @@ export default function App() {
                                 <td><span style={{ fontFamily: "monospace", fontWeight: 700, color: "#1e56c2", fontSize: 12 }}>{a.id}</span></td>
                                 <td style={{ fontWeight: 500 }}>{a.project}</td>
                                 <td style={{ fontWeight: 700 }}>₹{a.fees.toLocaleString()}</td>
-                                <td><span style={{ color: a.feesPaid ? "#059669" : "#dc2626", fontWeight: 600, fontSize: 12 }}>{a.feesPaid ? "Paid ✓" : "Pending ⚠"}</span></td>
+                                <td><span style={{ color: a.feesPaid ? "#059669" : "#dc2626", fontWeight: 600, fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>{a.feesPaid ? <><Check size={14}/> Paid</> : <><AlertTriangle size={14}/> Pending</>}</span></td>
                                 <td>{!a.feesPaid && <button className="btn btn-primary btn-sm" onClick={() => { upd(a.id, { feesPaid: true }); notify("Payment confirmed for " + a.id); }}>Pay Now</button>}</td>
                             </tr>)}</tbody></table>
                     </div>

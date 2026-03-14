@@ -131,7 +131,8 @@ const landingCSS = `
   .dd-content { flex-grow: 1; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 40px; border: 1px solid rgba(0,0,0,0.05); }
 
   /* ── Workflow Stages ── */
-  .sec-wf { padding: 60px 40px 80px; text-align: center; background: #d5f0db; }
+  .sec-wf { padding: 60px 40px 80px; text-align: center; background: #d5f0db; position: relative; z-index: 1; }
+  .sec-wf::before { content: ""; position: absolute; inset: 0; background: url('/kalamkari_bg.png'); background-size: 350px; opacity: 0.4; mix-blend-mode: multiply; z-index: -1; pointer-events: none; }
 
   /* ── Vertical Central Guide Timeline ── */
   .wf-vertical-timeline { position: relative; max-width: 700px; margin: 50px auto 0; padding: 20px 0; }
